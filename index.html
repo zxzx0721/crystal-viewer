@@ -20,7 +20,7 @@
   --amber:#fbbf24;
   --stroke:rgba(255,255,255,.09);
   --stroke-strong:rgba(255,255,255,.16);
-  --panel:linear-gradient(160deg,rgba(21,29,46,.86),rgba(11,16,27,.9));
+  --panel:linear-gradient(160deg,rgba(21,29,46,.95),rgba(11,16,27,.97));
   --radius:18px;
   --safe-top:env(safe-area-inset-top,0px);
   --safe-bottom:env(safe-area-inset-bottom,0px);
@@ -89,7 +89,6 @@ noscript{position:fixed;inset:0;display:grid;place-items:center;padding:40px;tex
   width:36px;height:36px;border-radius:11px;display:grid;place-items:center;
   border:1px solid var(--stroke);background:rgba(255,255,255,.045);
   color:#c7d4e6;transition:background .18s,border-color .18s,transform .12s,color .18s;
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
 }
 .icon-btn:active{transform:scale(.93)}
 .icon-btn svg{width:18px;height:18px;display:block}
@@ -115,7 +114,6 @@ noscript{position:fixed;inset:0;display:grid;place-items:center;padding:40px;tex
   flex:0 0 auto;min-width:56px;padding:6px 9px 5px;border-radius:11px;text-align:left;
   border:1px solid var(--stroke);background:rgba(255,255,255,.04);
   display:flex;flex-direction:column;gap:0;transition:background .18s,border-color .18s,transform .12s;
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
 .chip:active{transform:scale(.96)}
 .chip .f{font-size:13px;font-weight:600;letter-spacing:.01em;white-space:nowrap;line-height:1.3}
@@ -132,7 +130,7 @@ noscript{position:fixed;inset:0;display:grid;place-items:center;padding:40px;tex
   position:fixed;z-index:12;left:50%;bottom:calc(var(--safe-bottom) + 128px);
   transform:translateX(-50%);font-size:10.5px;letter-spacing:.08em;color:#6b7a90;
   padding:5px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.07);
-  background:rgba(8,12,20,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  background:rgba(8,12,20,.72);
   transition:opacity .6s;pointer-events:none;white-space:nowrap;
 }
 .hint.hide{opacity:0}
@@ -141,7 +139,7 @@ noscript{position:fixed;inset:0;display:grid;place-items:center;padding:40px;tex
 .info-card{
   position:fixed;z-index:25;left:12px;right:86px;bottom:calc(var(--safe-bottom) + 14px);
   padding:11px 13px 11px;border-radius:var(--radius);border:1px solid var(--stroke);
-  background:var(--panel);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);
+  background:var(--panel);
   box-shadow:0 20px 44px -24px #000,inset 0 1px 0 rgba(255,255,255,.07);
   cursor:pointer;overflow:hidden;
 }
@@ -290,7 +288,7 @@ input:disabled+.sw{opacity:.35}
   background:rgba(9,15,24,.92);border:1px solid rgba(255,255,255,.14);
   box-shadow:0 12px 28px -14px #000;font-size:11.5px;line-height:1.45;
   opacity:0;transform:translate(-50%,-110%);transition:opacity .16s;
-  white-space:nowrap;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  white-space:nowrap;
 }
 .atom-tip.on{opacity:1}
 .atom-tip b{color:#a7fff2;font-weight:600}
@@ -377,7 +375,6 @@ input:disabled+.sw{opacity:.35}
   background:linear-gradient(165deg,rgba(23,32,50,.93),rgba(9,14,24,.96));
   border:1px solid rgba(255,255,255,.11);
   box-shadow:0 34px 90px -34px #000,0 0 0 1px rgba(94,234,212,.05),inset 0 1px 0 rgba(255,255,255,.08);
-  backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);
 }
 .gate-icon{
   width:58px;height:58px;display:grid;place-items:center;border-radius:18px;
@@ -1008,6 +1005,11 @@ window.CV = window.CV || {};
   }
 
   /* ============================ 渲染 ============================ */
+  function renderDpr() {
+    var d = window.devicePixelRatio || 1;
+    return Math.min(d, window.innerWidth < 900 ? 1.5 : 2);
+  }
+
   function srgb(hex) { return new THREE.Color(hex).convertSRGBToLinear(); }
 
   function disposeGroup(g) {
@@ -1036,7 +1038,7 @@ window.CV = window.CV || {};
     model.atoms.forEach(function (a) { (byEl[a.el] || (byEl[a.el] = [])).push(a); });
     Object.keys(byEl).forEach(function (el) {
       var list = byEl[el];
-      var geo = new THREE.SphereGeometry(1, 28, 20);
+      var geo = new THREE.SphereGeometry(1, 22, 16);
       var mat = new THREE.MeshStandardMaterial({
         color: srgb(EL[el].color),
         roughness: EL[el].metal ? 0.32 : 0.5,
@@ -1068,11 +1070,12 @@ window.CV = window.CV || {};
       }
       mesh.instanceMatrix.needsUpdate = true;
     }
+    invalidate();
   }
 
   function renderBonds() {
     if (!S.bonds || S.mode !== 'ball' || !model.bonds.length) return;
-    var geo = new THREE.CylinderGeometry(1, 1, 1, 9, 1, false);
+    var geo = new THREE.CylinderGeometry(1, 1, 1, 7, 1, false);
     var mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.42, metalness: 0.1 });
     var mesh = new THREE.InstancedMesh(geo, mat, model.bonds.length * 2);
     mesh.frustumCulled = false;
@@ -1102,7 +1105,7 @@ window.CV = window.CV || {};
   function renderEdges() {
     if (!S.cell || !model.edgeSegs.length) return;
     var rad = clamp(model.fitR * 0.008, 0.022, 0.12);
-    var geo = new THREE.CylinderGeometry(1, 1, 1, 6, 1, false);
+    var geo = new THREE.CylinderGeometry(1, 1, 1, 5, 1, false);
     var mat = new THREE.MeshBasicMaterial({ color: 0x8ea3c0, transparent: true, opacity: 0.38, depthWrite: false });
     var mesh = new THREE.InstancedMesh(geo, mat, model.edgeSegs.length);
     mesh.frustumCulled = false;
@@ -1126,7 +1129,7 @@ window.CV = window.CV || {};
     ];
     sets.forEach(function (set) {
       if (!set.list.length) return;
-      var geo = new THREE.SphereGeometry(1, 18, 12);
+      var geo = new THREE.SphereGeometry(1, 14, 10);
       var c = srgb(set.color);
       var mat = new THREE.MeshStandardMaterial({
         color: c, emissive: c, emissiveIntensity: 1.0,
@@ -1373,6 +1376,7 @@ window.CV = window.CV || {};
     buildPolyhedra(current);
     renderPlane();
     if (fit) updateFit(true);
+    invalidate();
   }
 
   /* ============================ 环境与相机 ============================ */
@@ -1444,8 +1448,7 @@ window.CV = window.CV || {};
     if (!renderer) return;
     var stageEl = renderer.domElement;
     var w = stageEl.clientWidth || window.innerWidth, h = stageEl.clientHeight || window.innerHeight;
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    renderer.setPixelRatio(dpr);
+    renderer.setPixelRatio(renderDpr());
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
@@ -1453,6 +1456,7 @@ window.CV = window.CV || {};
       updateFit(false);
       if (view.autoFit) view.rDesired = view.baseR;
     }
+    invalidate();
   }
 
   /* ============================ 指针交互 ============================ */
@@ -1491,6 +1495,7 @@ window.CV = window.CV || {};
         var arr = Object.keys(pointers).map(function (k) { return pointers[k]; });
         view.pinch = { d: Math.max(1, dist2(arr[0], arr[1])), r: view.rDesired };
       }
+      invalidate();
     });
 
     canvas.addEventListener('pointermove', function (e) {
@@ -1511,6 +1516,7 @@ window.CV = window.CV || {};
         view.rDesired = clamp(view.pinch.r * view.pinch.d / d, view.minR, view.maxR);
         view.autoFit = false;
       }
+      invalidate();
     });
 
     function endPointer(e) {
@@ -1530,6 +1536,7 @@ window.CV = window.CV || {};
         view.dragging = true;
         view.vT = 0; view.vP = 0;
       }
+      invalidate();
     }
     canvas.addEventListener('pointerup', endPointer);
     canvas.addEventListener('pointercancel', endPointer);
@@ -1540,6 +1547,7 @@ window.CV = window.CV || {};
       view.rDesired = clamp(view.rDesired * Math.exp(e.deltaY * 0.0012), view.minR, view.maxR);
       view.autoFit = false;
       view.lastInteract = performance.now();
+      invalidate();
     }, { passive: false });
   }
 
@@ -1584,15 +1592,31 @@ window.CV = window.CV || {};
   }
 
   /* ============================ 循环 ============================ */
-  var lastT = 0;
-  function tick(now) {
+  var lastT = 0, running = false, needsRender = true;
+  function isActive() {
+    return needsRender || view.dragging || !!view.tween || S.rotate ||
+      Math.abs(view.vT) > 0.0001 || Math.abs(view.vP) > 0.0001 ||
+      Math.abs(view.rDesired - view.r) > 0.002;
+  }
+  function startLoop() {
+    if (running || disposed) return;
+    running = true;
     requestAnimationFrame(tick);
+  }
+  function invalidate() {
+    needsRender = true;
+    startLoop();
+  }
+  function tick(now) {
+    running = false;
     if (disposed) return;
-    var dt = lastT ? Math.min(0.06, (now - lastT) / 1000) : 0.016;
+    var dt = lastT ? Math.min(0.05, (now - lastT) / 1000) : 0.016;
     lastT = now;
     updateView(dt, now);
     renderer.render(scene, camera);
     drawGizmo();
+    needsRender = false;
+    if (isActive()) startLoop();
   }
 
   /* ============================ 公共 API ============================ */
@@ -1604,9 +1628,9 @@ window.CV = window.CV || {};
     init: function (canvas) {
       renderer = new THREE.WebGLRenderer({
         canvas: canvas, antialias: true, alpha: true,
-        preserveDrawingBuffer: true, powerPreference: 'high-performance'
+        preserveDrawingBuffer: false, powerPreference: 'high-performance'
       });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setPixelRatio(renderDpr());
       renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.0;
@@ -1642,7 +1666,7 @@ window.CV = window.CV || {};
       bindPointer(canvas);
       window.addEventListener('resize', resize);
       window.addEventListener('orientationchange', function () { setTimeout(resize, 120); });
-      requestAnimationFrame(tick);
+      invalidate();
     },
 
     select: function (st) {
@@ -1668,6 +1692,7 @@ window.CV = window.CV || {};
           to: { theta: view.theta, phi: view.phi, r: view.baseR }
         };
       }
+      invalidate();
     },
 
     captureRaw: function () {
@@ -1678,8 +1703,10 @@ window.CV = window.CV || {};
     setView: function (theta, phi) {
       view.theta = theta; view.phi = phi; view.tween = null; view.vT = 0; view.vP = 0;
       view.rDesired = view.baseR;
+      invalidate();
     },
     rebuild: function (fit) { rebuild(fit); },
+    invalidate: function () { invalidate(); },
     updateSizes: function () { updateAtomSizes(); },
 
     resetView: function () {
@@ -1691,11 +1718,13 @@ window.CV = window.CV || {};
         to: { theta: DEF_TH, phi: DEF_PH, r: view.baseR }
       };
       view.rDesired = view.baseR;
+      invalidate();
     },
 
     setRotate: function (on) {
       S.rotate = !!on;
       view.lastInteract = performance.now();
+      invalidate();
     },
 
     capture: function () {
@@ -2073,6 +2102,7 @@ window.CV = window.CV || {};
     $('#stage canvas').addEventListener('pointerdown', hideTip, { passive: true });
     document.addEventListener('visibilitychange', function () {
       if (document.hidden) { setRotate(false); closeSheets(); }
+      else if (CV.Scene.invalidate) CV.Scene.invalidate();
     });
 
     setTimeout(function () { $('#hint').classList.add('hide'); }, 6500);
