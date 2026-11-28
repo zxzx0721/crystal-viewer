@@ -429,9 +429,6 @@ input:disabled+.sw{opacity:.35}
 }
 
 </style>
-<script>
-(function(){try{if(sessionStorage.getItem("cv.ok")==="1"){document.documentElement.className+=" gate-skip";}}catch(e){}})();
-</script>
 </head>
 <body>
 <script>
@@ -452,27 +449,6 @@ if (location.search.indexOf("debug") >= 0) {
   });
 }
 </script>
-<div class="gate" id="gate">
-  <div class="gate-card" id="gate-card">
-    <div class="gate-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#5eead4" stroke-width="1.3" stroke-linejoin="round">
-        <path d="M12 2.4 20.6 7v10L12 21.6 3.4 17V7L12 2.4Z"/>
-        <path d="M3.4 7 12 11.7 20.6 7M12 11.7v9.9" opacity=".5"/>
-      </svg>
-    </div>
-    <h2>晶胞可视化</h2>
-    <p class="gate-sub">CRYSTAL VIEWER · 访问验证</p>
-    <form class="gate-form" id="gate-form" autocomplete="off">
-      <div class="gate-field">
-        <input id="gate-pw" type="password" placeholder="请输入访问密码" aria-label="访问密码" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button type="button" class="gate-eye" id="gate-eye" aria-label="显示密码">显示</button>
-      </div>
-      <p class="gate-err" id="gate-err"></p>
-      <button type="submit" class="gate-btn">进 入</button>
-    </form>
-    <p class="gate-foot">作者 子非鱼 · 仅限授权访问</p>
-  </div>
-</div>
 <div class="bg"></div>
 <div class="stage-glow"></div>
 <div id="stage"><canvas id="c"></canvas></div>
@@ -2202,14 +2178,7 @@ window.CV = window.CV || {};
   }
 
   function boot() {
-    var force = false;
-    try { force = new URLSearchParams(location.search).get("gate") === "1"; } catch (e) {}
-    if (!force && isUnlocked()) {
-      document.documentElement.classList.add("gate-skip");
-      bootApp();
-      return;
-    }
-    showGate();
+    bootApp();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
